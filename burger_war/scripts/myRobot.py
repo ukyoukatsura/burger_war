@@ -15,6 +15,7 @@ import numpy as np
 import math
 from tf import TransformListener
 from geometry_msgs.msg import PointStamped
+from visualization_msgs.msg import Marker, MarkerArray
 
 camera_preview = True
 
@@ -42,6 +43,10 @@ class MyRobot():
         self.client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
         # mode
         self.mode = 0
+        # tf
+        self._tf_listener = tf.TransformListener()
+        # Marker
+        self.marker_pub = rospy.Publisher('enemy_position', Marker, queue_size = 1)
 
     # RESPECT
     def setGoal(self,x,y,yaw):
@@ -81,8 +86,8 @@ class MyRobot():
             cv2.waitKey(1)
         # 緑の検出
         hsv_img = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV_FULL)
-        bgrLower = np.array([60, 0, 0])
-        bgrUpper = np.array([120, 255, 255])
+        bgrLower = np.array([80, 50, 50])
+        bgrUpper = np.array([110, 255, 255])
         hsv_mask = cv2.inRange(hsv_img, bgrLower, bgrUpper)
         rects = []
         labels, contours, hierarchy = cv2.findContours(hsv_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
@@ -91,12 +96,25 @@ class MyRobot():
 
                 rect = contours[i]
                 x, y, w, h = cv2.boundingRect(rect)
-                rects.append(x)
-        #print(rects)
+                rects.append([x,y,w,h])
+        print(rects)
         if len(rects) != 0:
             self.mode = 1
+            # rectsから緑全体をもってくる
+            Max_left = 640.0
+            Max_right = 0.0
+            for i in rects:
+                if (i[0] - (i[2] / 2.0)) <= Max_left:
+                    Max_left = (i[0] - (i[2] / 2.0))
+                if (i[0] + (i[2] / 2.0)) >= Max_right:
+                    Max_right = (i[0] + (i[2] / 2.0))
+            print(Max_left)
+            print(Max_right)
+            angle_left = (Max_left - (camera_width / 2.0)) * (camera_fov / camera_width)
+            angle_right = (Max_right - (camera_width / 2.0)) * (camera_fov / camera_width)
+            
             # robot正面から何度の方向に緑の物体が存在するか計算
-            angle = (rects[0] - (camera_width / 2.0)) * (camera_fov / camera_width)
+            angle = (rects[0][0] - (camera_width / 2.0)) * (camera_fov / camera_width)
             print("#####角度#####")
             print(angle)
             # rectの大きさまで考慮する必要ありか？
@@ -116,26 +134,49 @@ class MyRobot():
             print(robot_y)
             
             ######要修正######
-            '''
+            
             # 地図座標系に変換
-            listener = tf.TransformListener()
-            listener.waitForTransform("/red_bot/map","/red_bot/base_footprint",rospy.Time(0),rospy.Duration(4.0))
+            #listener = tf.TransformListener()
+            #listener.waitForTransform("/red_bot/map","/red_bot/base_footprint",rospy.Time(0),rospy.Duration(4.0))
             laser_point = PointStamped()
-            laser_point.header.frame_id = "/red_bot/base_footprint"
+            laser_point.header.frame_id = "/red_bot/base_link"
             laser_point.header.stamp = rospy.Time(0)
             laser_point.point.x = robot_x
             laser_point.point.y = robot_y
             laser_point.point.z = 0.0
             p = PointStamped()
-            p = listener.transformPoint("/red_bot/map", laser_point)
+            p = self._tf_listener.transformPoint("/red_bot/map", laser_point)
             # 方向と位置をゴールとして指定
             # 一旦方向は無視して位置でデバッグ
             print("#####x_map#####")
             print(p.point.x)
             print("#####y_map#####")
             print(p.point.y)
-            self.setGoal(p.point.x,p.point.y,0)
-            '''
+            #self.setGoal(p.point.x,p.point.y,0)
+            marker_data = Marker()
+            marker_data.header.frame_id = "/red_bot/map"
+            marker_data.header.stamp = rospy.Time.now()
+            marker_data.ns = "text"
+            marker_data.id = 0
+            marker_data.action = Marker.ADD
+            marker_data.type = 9
+            marker_data.text = "object"
+            marker_data.pose.position.x = p.point.x
+            marker_data.pose.position.y = p.point.y
+            marker_data.pose.position.z = 0.0
+            marker_data.pose.orientation.x = 0.0
+            marker_data.pose.orientation.y = 0.0
+            marker_data.pose.orientation.z = 0.0
+            marker_data.pose.orientation.w = 0.0
+            marker_data.color.r = 1.0
+            marker_data.color.g = 0.0
+            marker_data.color.b = 0.0
+            marker_data.color.a = 1.0
+            marker_data.scale.x = 1.0
+            marker_data.scale.y = 0.1
+            marker_data.scale.z = 0.1
+            self.marker_pub.publish(marker_data)
+            
 
     def basic_move(self):
         self.setGoal(-0.5,0,0)

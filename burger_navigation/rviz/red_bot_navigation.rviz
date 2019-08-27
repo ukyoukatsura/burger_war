@@ -12,7 +12,6 @@ Panels:
         - /Planner Plan1
         - /Global Map1
         - /Global Map1/Costmap1
-        - /Global Map1/Costmap1/Status1
         - /Global Map1/Planner1
         - /Local Map1
         - /Local Map1/Polygon1
@@ -85,21 +84,7 @@ Visualization Manager:
         All Enabled: false
         blue_bot/base_footprint:
           Value: true
-        blue_bot/base_link:
-          Value: true
-        blue_bot/base_scan:
-          Value: true
-        blue_bot/caster_back_link:
-          Value: true
-        blue_bot/imu_link:
-          Value: true
-        blue_bot/map:
-          Value: true
         blue_bot/odom:
-          Value: true
-        blue_bot/wheel_left_link:
-          Value: true
-        blue_bot/wheel_right_link:
           Value: true
         red_bot/base_footprint:
           Value: true
@@ -329,6 +314,14 @@ Visualization Manager:
       Topic: /red_bot/move_base/current_goal
       Unreliable: false
       Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /red_bot/enemy_position
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -384,4 +377,4 @@ Window Geometry:
     collapsed: true
   Width: 1279
   X: 65
-  Y: 326
+  Y: 25
