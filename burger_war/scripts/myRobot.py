@@ -114,16 +114,23 @@ class MyRobot():
             angle_left = (Max_left - (camera_width / 2.0)) * (camera_fov / camera_width)
             angle_right = (Max_right - (camera_width / 2.0)) * (camera_fov / camera_width)
             
+            angle_adjust = angle_left + angle_right
+            
             # robot正面から何度の方向に緑の物体が存在するか計算
             angle = (rects[0][0] - (camera_width / 2.0)) * (camera_fov / camera_width)
             print("#####角度#####")
             print(angle)
+            print(angle_adjust)
             # rectの大きさまで考慮する必要ありか？
             # lidarの点群からおおよその距離を算出
             if angle >= 0:
                 distance = self.scan.ranges[int(angle)]
             else:
                 distance = self.scan.ranges[int(359 + angle)]
+            #if angle_adjust >= 0:
+            #    distance = self.scan.ranges[int(angle_adjust)]
+            #else:
+            #    distance = self.scan.ranges[int(359 + angle_adjust)]
             print("#####距離#####")
             print(distance)
             # robotから見た座標値を算出　前がx軸、左がy軸
