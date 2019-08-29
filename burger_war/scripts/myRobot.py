@@ -110,6 +110,7 @@ class MyRobot():
                     Max_right = (i[0] + (i[2] / 2.0))
             print(Max_left)
             print(Max_right)
+            
             angle_left = (Max_left - (camera_width / 2.0)) * (camera_fov / camera_width)
             angle_right = (Max_right - (camera_width / 2.0)) * (camera_fov / camera_width)
             
