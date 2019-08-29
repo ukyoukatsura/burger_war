@@ -136,6 +136,8 @@ class MyRobot():
             # robotから見た座標値を算出　前がx軸、左がy軸
             robot_x = math.cos(math.radians(angle)) * distance
             robot_y = -math.sin(math.radians(angle)) * distance
+            #robot_x = math.cos(math.radians(angle_adjust)) * distance
+            #robot_y = -math.sin(math.radians(angle_adjust)) * distance
             print("#####x軸######")
             print(robot_x)
             print("#####y軸######")
