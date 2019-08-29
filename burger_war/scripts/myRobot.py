@@ -187,6 +187,30 @@ class MyRobot():
             marker_data.scale.z = 0.1
             self.marker_pub.publish(marker_data)
             
+            # Goal Setting
+            goal = PoseStamped()
+            #goal.header.seq = self.goal_seq_no
+            goal.header.frame_id = self.name + "/map"         # mapで座標系で指定する
+            goal.header.stamp = rospy.Time.now()       # タイムスタンプは今の時間
+
+            # ** 位置座標
+            goal.pose.position.x = p.point.x
+            goal.pose.position.y = p.point.y
+            goal.pose.position.z = 0
+            # ** 回転方向
+            # オイラー角をクォータニオンに変換・設定する
+            # RESPECT @hotic06 オイラー角をクォータニオンに変換・設定する
+            #euler_val = self.orientstr_to_val(pos_list[2])
+            #quate = tf.transformations.quaternion_from_euler(0.0, 0.0, euler_val)
+            goal.pose.orientation.x = 0
+            goal.pose.orientation.y = 0
+            goal.pose.orientation.z = 0
+            goal.pose.orientation.w = 0
+            # debug
+            print(goal)
+            # 実際にTopicを配信する
+            self.pub_goal.publish(goal)
+            
 
     def basic_move(self):
         self.setGoal(-0.5,0,0)
