@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+'''
+This is ar marger Id send node.
+subscribe 'target_id' topic. 
+if subscribe 'target_id' then post ID to judge server.
+
+by Takuya Yamaguhi.
+'''
+
 import rospy
 from std_msgs.msg import String
 from aruco_msgs.msg import MarkerArray
@@ -66,8 +75,8 @@ class TargetId(object):
         for marker in markers:
             target_id = str(marker.id)
             target_id = self.lengthTo4(target_id)
-            if target_id in self.historys:
-                return
+            # if target_id in self.historys:
+            #     return
             try:
                 resp_raw = self.sendToJudge(target_id)
             except:
@@ -76,8 +85,8 @@ class TargetId(object):
                 resp = json.loads(resp_raw.text)
                 print("Send " + target_id + " To " + self.judge_url)
                 print(resp)
-                if resp["error"] == "no error" or resp["error"] == "ERR not mutch id":
-                    self.historys.append(target_id)
+                # if resp["error"] == "no error" or resp["error"] == "ERR not mutch id":
+                #     self.historys.append(target_id)
 
 
 class WarStatePublisher(object):
